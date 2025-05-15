@@ -22,23 +22,21 @@ namespace PRA_B4_FOTOKIOSK.controller
         // Start methode die wordt aangeroepen wanneer de foto pagina opent.
         public void Start()
         {
+            // Get current day number (0 = Sunday through 6 = Saturday)
+            var now = DateTime.Now;
+            int day = (int)now.DayOfWeek;
 
             // Initializeer de lijst met fotos
-            // WAARSCHUWING. ZONDER FILTER LAADT DIT ALLES!
-            // foreach is een for-loop die door een array loopt
             foreach (string dir in Directory.GetDirectories(@"../../../fotos"))
             {
-                /**
-                 * dir string is de map waar de fotos in staan. Bijvoorbeeld:
-                 * \fotos\0_Zondag
-                 */
-                foreach (string file in Directory.GetFiles(dir))
+                // Extract the day number from directory name (e.g., "0_Zondag" -> 0)
+                string dayNumber = Path.GetFileName(dir).Split('_')[0];
+                if (int.Parse(dayNumber) == day)
                 {
-                    /**
-                     * file string is de file van de foto. Bijvoorbeeld:
-                     * \fotos\0_Zondag\10_05_30_id8824.jpg
-                     */
-                    PicturesToDisplay.Add(new KioskPhoto() { Id = 0, Source = file });
+                    foreach (string file in Directory.GetFiles(dir))
+                    {
+                        PicturesToDisplay.Add(new KioskPhoto() { Id = 0, Source = file });
+                    }
                 }
             }
 

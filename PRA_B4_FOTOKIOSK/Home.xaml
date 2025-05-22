@@ -5,41 +5,321 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PRA_B4_FOTOKIOSK"
         mc:Ignorable="d"
-        Title="Home" Height="1080" Width="1920" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterScreen" WindowState="Maximized">
-    <Grid>
-        <TabControl>
-
-            <TabItem Header="Foto's">
-                <Grid>
-                    <ScrollViewer Margin="10,38,10,43">
-                        <WrapPanel x:Name="spPictures">
-                        </WrapPanel>
-                    </ScrollViewer>
-                    <Button x:Name="btnRefresh" Content="Refresh" HorizontalAlignment="Left" Margin="10,998,0,0" VerticalAlignment="Top" Width="83" Height="28" Click="btnRefresh_Click"/>
+        Title="ThemePark FotoKiosk" Height="1080" Width="1920" SizeToContent="WidthAndHeight" 
+        WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="#f0f0f0">
+    
+    <Window.Resources>
+        <!-- Theme Colors -->
+        <SolidColorBrush x:Key="ThemeBlueBrush" Color="#1E88E5"/>
+        <SolidColorBrush x:Key="ThemeDarkBlueBrush" Color="#1565C0"/>
+        <SolidColorBrush x:Key="ThemeGreenBrush" Color="#43A047"/>
+        <SolidColorBrush x:Key="ThemeDarkGreenBrush" Color="#2E7D32"/>
+        <SolidColorBrush x:Key="ThemeLightBlueBrush" Color="#90CAF9"/>
+        <SolidColorBrush x:Key="ThemeLightGreenBrush" Color="#A5D6A7"/>
+        <SolidColorBrush x:Key="ThemeBackgroundBrush" Color="#F5F5F5"/>
+        
+        <!-- Button Styles -->
+        <Style x:Key="BlueButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource ThemeBlueBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="15,5"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource ThemeDarkBlueBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style x:Key="GreenButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource ThemeGreenBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="15,5"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource ThemeDarkGreenBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <!-- TabControl Style -->
+        <Style TargetType="TabControl">
+            <Setter Property="Background" Value="{StaticResource ThemeBackgroundBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        
+        <!-- TabItem Style -->
+        <Style TargetType="TabItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border Name="Border" 
+                                BorderThickness="0,0,0,3" 
+                                BorderBrush="Transparent" 
+                                Margin="0,0,2,0"
+                                Padding="15,10">
+                            <ContentPresenter x:Name="ContentSite"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Center"
+                                              ContentSource="Header"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource ThemeBlueBrush}"/>
+                                <Setter Property="Foreground" Value="{StaticResource ThemeBlueBrush}"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#E3F2FD"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    
+    <Grid Background="{StaticResource ThemeBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{StaticResource ThemeBlueBrush}" Padding="20,10">
+            <TextBlock Text="THEMEPARK FOTOKIOSK" 
+                       Foreground="White" 
+                       FontSize="24" 
+                       FontWeight="Bold" 
+                       HorizontalAlignment="Center"/>
+        </Border>
+        
+        <!-- Main Content -->
+        <TabControl Grid.Row="1">            <TabItem Header="Foto's">
+                <Grid Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Photo display area with styled border -->
+                    <Border Grid.Row="0" 
+                            BorderBrush="{StaticResource ThemeLightBlueBrush}" 
+                            BorderThickness="1" 
+                            Background="White" 
+                            CornerRadius="4"
+                            Margin="0,0,0,10">
+                        <ScrollViewer Padding="10" VerticalScrollBarVisibility="Auto">
+                            <WrapPanel x:Name="spPictures">
+                                <!-- Photos will be added here programmatically -->
+                            </WrapPanel>
+                        </ScrollViewer>
+                    </Border>
+                    
+                    <!-- Control buttons -->
+                    <Button x:Name="btnRefresh" 
+                            Grid.Row="1"
+                            Content="Foto's Vernieuwen" 
+                            Style="{StaticResource BlueButtonStyle}"
+                            HorizontalAlignment="Left" 
+                            Width="200" 
+                            Height="40" 
+                            Click="btnRefresh_Click"/>
                 </Grid>
-            </TabItem>
-            <TabItem Header="Kassa">
-                <Grid>
-                    <Label Content="Foto-id:" HorizontalAlignment="Left" Margin="100,192,0,0" VerticalAlignment="Top" Height="24" Width="255"/>
-                    <TextBox x:Name="tbFotoId" HorizontalAlignment="Left" Margin="100,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="325" Height="22"/>
-                    <Label Content="Product:" HorizontalAlignment="Left" Margin="100,258,0,0" VerticalAlignment="Top" Height="23" Width="255"/>
-                    <ComboBox x:Name="cbProducts" HorizontalAlignment="Left" Margin="100,286,0,0" VerticalAlignment="Top" Width="325"/>
-                    <Label Content="Aantal:" HorizontalAlignment="Left" Margin="100,326,0,0" VerticalAlignment="Top" Height="24" Width="255"/>
-                    <TextBox x:Name="tbAmount" HorizontalAlignment="Left" Margin="100,356,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="325" Height="22"/>
-                    <Button x:Name="btnShopAdd" Content="Toevoegen" HorizontalAlignment="Left" Margin="100,383,0,0" VerticalAlignment="Top" Width="147" Click="btnShopAdd_Click"/>
-                    <Button x:Name="btnShopReset" Content="Resetten" HorizontalAlignment="Left" Margin="278,383,0,0" VerticalAlignment="Top" Width="147" Click="btnShopReset_Click"/>
-                    <Label x:Name="lbPrices" Content="" HorizontalAlignment="Left" Margin="1065,174,0,0" VerticalAlignment="Top" Height="536" Width="695"/>
-                    <Label x:Name="lbReceipt" Content="" HorizontalAlignment="Left" Margin="100,442,0,0" VerticalAlignment="Top" Height="392" Width="325"/>
-                    <Button x:Name="btnSave" Content="Bon Opslaan" HorizontalAlignment="Left" Margin="10,998,0,0" VerticalAlignment="Top" Width="83" Height="28" Click="btnSave_Click"/>
+            </TabItem>            <TabItem Header="Kassa">
+                <Grid Margin="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="400"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="400"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Left panel - Order form -->
+                    <Border Grid.Column="0" 
+                            Background="White" 
+                            BorderBrush="{StaticResource ThemeLightGreenBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="4"
+                            Padding="20">
+                        <StackPanel>
+                            <TextBlock Text="BESTELFORMULIER" 
+                                       FontWeight="Bold" 
+                                       Foreground="{StaticResource ThemeDarkGreenBrush}" 
+                                       Margin="0,0,0,20"
+                                       FontSize="18"/>
+                            
+                            <Label Content="Foto-ID:" 
+                                   FontWeight="SemiBold" 
+                                   Foreground="{StaticResource ThemeDarkGreenBrush}"/>
+                            <TextBox x:Name="tbFotoId" 
+                                     Height="30" 
+                                     Margin="0,0,0,15" 
+                                     Padding="5,2"
+                                     BorderBrush="{StaticResource ThemeLightGreenBrush}"/>
+                            
+                            <Label Content="Product:" 
+                                   FontWeight="SemiBold" 
+                                   Foreground="{StaticResource ThemeDarkGreenBrush}"/>
+                            <ComboBox x:Name="cbProducts" 
+                                      Height="30" 
+                                      Margin="0,0,0,15" 
+                                      Padding="5,2"
+                                      BorderBrush="{StaticResource ThemeLightGreenBrush}"/>
+                            
+                            <Label Content="Aantal:" 
+                                   FontWeight="SemiBold" 
+                                   Foreground="{StaticResource ThemeDarkGreenBrush}"/>
+                            <TextBox x:Name="tbAmount" 
+                                     Height="30" 
+                                     Margin="0,0,0,20" 
+                                     Padding="5,2"
+                                     BorderBrush="{StaticResource ThemeLightGreenBrush}"/>
+                            
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                                <Button x:Name="btnShopAdd" 
+                                        Content="Toevoegen" 
+                                        Style="{StaticResource GreenButtonStyle}"
+                                        Width="150" 
+                                        Height="40" 
+                                        Margin="0,0,10,0"
+                                        Click="btnShopAdd_Click"/>
+                                <Button x:Name="btnShopReset" 
+                                        Content="Resetten" 
+                                        Background="#E0E0E0"
+                                        Foreground="#424242"
+                                        FontWeight="SemiBold"
+                                        Width="150" 
+                                        Height="40"
+                                        BorderThickness="0"
+                                        Click="btnShopReset_Click"/>
+                            </StackPanel>
+                            
+                            <!-- Receipt display -->
+                            <TextBlock Text="BON OVERZICHT" 
+                                       FontWeight="Bold" 
+                                       Foreground="{StaticResource ThemeDarkGreenBrush}" 
+                                       Margin="0,0,0,10"
+                                       FontSize="18"/>
+                            
+                            <Border Background="#F8F8F8" 
+                                    BorderBrush="{StaticResource ThemeLightGreenBrush}" 
+                                    BorderThickness="1" 
+                                    CornerRadius="4">
+                                <ScrollViewer Height="300" 
+                                              VerticalScrollBarVisibility="Auto"
+                                              Padding="10">
+                                    <Label x:Name="lbReceipt" 
+                                           Width="320"
+                                           FontFamily="Consolas"/>
+                                </ScrollViewer>
+                            </Border>
+                            
+                            <StackPanel Margin="0,20,0,0">
+                                <Button x:Name="btnSave" 
+                                        Content="Bon Opslaan" 
+                                        Style="{StaticResource BlueButtonStyle}"
+                                        Height="40" 
+                                        Click="btnSave_Click"/>
+                                <Button x:Name="btnExport" 
+                                        Content="Bon Exporteren" 
+                                        Style="{StaticResource GreenButtonStyle}"
+                                        Height="40"
+                                        Margin="0,10,0,0"
+                                        Click="btnExport_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Right panel - Price list -->
+                    <Border Grid.Column="2" 
+                            Background="White" 
+                            BorderBrush="{StaticResource ThemeLightBlueBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="4"
+                            Padding="20">
+                        <StackPanel>
+                            <TextBlock Text="PRIJSLIJST" 
+                                       FontWeight="Bold" 
+                                       Foreground="{StaticResource ThemeDarkBlueBrush}" 
+                                       Margin="0,0,0,10"
+                                       FontSize="18"/>
+                            
+                            <ScrollViewer Height="700" 
+                                          VerticalScrollBarVisibility="Auto">
+                                <Label x:Name="lbPrices" 
+                                       FontFamily="Segoe UI"
+                                       Foreground="#424242"/>
+                            </ScrollViewer>
+                        </StackPanel>
+                    </Border>
                 </Grid>
-            </TabItem>
-            <TabItem Header="Zoeken">
-                <Grid>
-                    <Label Content="Zoeken:" HorizontalAlignment="Left" Margin="100,53,0,0" VerticalAlignment="Top" Height="24" Width="255"/>
-                    <TextBox x:Name="tbZoeken" HorizontalAlignment="Left" Margin="100,77,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="325" Height="22"/>
-                    <Button x:Name="btnZoeken" Content="Zoeken" HorizontalAlignment="Left" Margin="430,77,0,0" VerticalAlignment="Top" Width="83" Height="22" Click="btnZoeken_Click"/>
-                    <Image x:Name="imgBig" HorizontalAlignment="Left" Height="565" Margin="100,128,0,0" VerticalAlignment="Top" Width="1047"/>
-                    <Label x:Name="lbSearchInfo" Content="" HorizontalAlignment="Left" Margin="100,727,0,0" VerticalAlignment="Top" Height="251" Width="1091"/>
+            </TabItem>            <TabItem Header="Zoeken">
+                <Grid Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Search controls -->
+                    <Border Grid.Row="0" 
+                            Background="White" 
+                            BorderBrush="{StaticResource ThemeLightBlueBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="4"
+                            Padding="20"
+                            Margin="0,0,0,20">
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel>
+                                <Label Content="Zoeken:" 
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource ThemeDarkBlueBrush}"/>
+                                <TextBox x:Name="tbZoeken" 
+                                         Width="400" 
+                                         Height="30" 
+                                         Padding="5,2"
+                                         BorderBrush="{StaticResource ThemeLightBlueBrush}"/>
+                            </StackPanel>
+                            <Button x:Name="btnZoeken" 
+                                    Content="Zoeken" 
+                                    Style="{StaticResource BlueButtonStyle}"
+                                    Width="120" 
+                                    Height="40" 
+                                    Margin="20,23,0,0"
+                                    Click="btnZoeken_Click"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Image display with border -->
+                    <Border Grid.Row="1" 
+                            Background="White" 
+                            BorderBrush="{StaticResource ThemeLightGreenBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="4"
+                            Padding="10"
+                            Margin="0,0,0,20">
+                        <Image x:Name="imgBig" 
+                               Stretch="Uniform"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                    </Border>
+                    
+                    <!-- Image information -->
+                    <Border Grid.Row="2" 
+                            Background="#F8F8F8" 
+                            BorderBrush="{StaticResource ThemeLightBlueBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="4"
+                            Padding="20">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="200">
+                            <Label x:Name="lbSearchInfo" 
+                                   FontFamily="Segoe UI"
+                                   Foreground="#424242"/>
+                        </ScrollViewer>
+                    </Border>
                 </Grid>
             </TabItem>
         </TabControl>

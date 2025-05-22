@@ -49,7 +49,7 @@ namespace PRA_B4_FOTOKIOSK
             PictureController.Start();
             ShopController.Start();
             SearchController.Start();
-        }
+        }   
 
         private void btnShopAdd_Click(object sender, RoutedEventArgs e)
         {
@@ -69,11 +69,14 @@ namespace PRA_B4_FOTOKIOSK
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
             ShopController.SaveButtonClick();
-        }
-
-        private void btnZoeken_Click(object sender, RoutedEventArgs e)
+        }        private void btnZoeken_Click(object sender, RoutedEventArgs e)
         {
             SearchController.SearchButtonClick();
+        }
+
+        private void btnExport_Click(object sender, RoutedEventArgs e)
+        {
+            ShopController.ExportButtonClick();
         }
     }
 }

@@ -56,7 +56,7 @@ namespace PRA_B4_FOTOKIOSK.magie
                 Instance.cbProducts.Items.Add(item.Name);
             }
         }
-
+        //dit kijkt of er een format is geselecteerd uit de dropdown
         public static KioskProduct GetSelectedProduct()
         {
             if (Instance.cbProducts.SelectedItem == null) return null;

@@ -23,6 +23,10 @@ namespace PRA_B4_FOTOKIOSK
     /// </summary>
     public partial class Home : Window
     {
+        // Expose controls that need to be accessed by managers
+        public Image ImageBig => imgBig;
+        public TextBox SearchTextBox => tbZoeken;
+        public Label SearchInfoLabel => lbSearchInfo;
 
         public ShopController ShopController { get; set; }
         public PictureController PictureController { get; set; }

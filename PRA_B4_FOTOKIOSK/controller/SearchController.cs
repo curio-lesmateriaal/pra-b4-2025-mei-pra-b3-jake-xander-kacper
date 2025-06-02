@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Text;
 
 namespace PRA_B4_FOTOKIOSK.controller
 {
@@ -69,6 +70,9 @@ namespace PRA_B4_FOTOKIOSK.controller
         // Called when the Search button is clicked
         public void SearchButtonClick()
         {
+            // Reset the display before starting a new search
+            SearchManager.ClearPictureDisplay();
+            
             string searchInput = SearchManager.GetSearchInput();
             
             if (string.IsNullOrWhiteSpace(searchInput))
@@ -96,26 +100,50 @@ namespace PRA_B4_FOTOKIOSK.controller
             
             // Find matching photo taken 60 seconds apart
             bool foundPair = FindAndDisplayPhotoPair(mainPhoto);
-            
             if (!foundPair)
-            {                SearchManager.SetPicture(mainPhoto.Source);
+            {
+                // For single photo display, make sure we clean up first
+                SearchManager.ClearPictureDisplay();
+                SearchManager.SetPicture(mainPhoto.Source);
                 
-                // Extract time from the photo
+                // Extract time and date from the photo
                 string filename = Path.GetFileName(mainPhoto.Source);
+                string directoryName = Path.GetFileName(Path.GetDirectoryName(mainPhoto.Source) ?? "");
                 string[] parts = filename.Split('_');
                 string timeInfo = "";
+                string dayInfo = "";
+                
+                // Get day information from directory name (e.g., "0_Zondag")
+                if (directoryName.Contains("_"))
+                {
+                    string[] dirParts = directoryName.Split('_');
+                    if (dirParts.Length == 2)
+                    {
+                        dayInfo = dirParts[1]; // Gets "Zondag", "Maandag", etc.
+                    }
+                }
                 
                 if (parts.Length >= 3 && 
                     int.TryParse(parts[0], out int hour) && 
                     int.TryParse(parts[1], out int minute) && 
                     int.TryParse(parts[2], out int second))
                 {
-                    timeInfo = $" (taken at {hour:D2}:{minute:D2}:{second:D2})";
+                    timeInfo = $"{hour:D2}:{minute:D2}:{second:D2}";
                 }
                 
-                SearchManager.SetSearchImageInfo($"Photo found with ID: {mainPhoto.Id}{timeInfo}\n\n" +
-                                               $"No matching photo found that was taken 60 seconds earlier or later.\n\n" +
-                                               $"Try searching for other photo IDs from your ride.");
+                var photoInfo = new StringBuilder();
+                photoInfo.AppendLine($"Photo Information:");
+                photoInfo.AppendLine($"ID: {mainPhoto.Id}");
+                photoInfo.AppendLine($"Time: {timeInfo}");
+                if (!string.IsNullOrEmpty(dayInfo))
+                {
+                    photoInfo.AppendLine($"Day: {dayInfo}");
+                }
+                photoInfo.AppendLine();
+                photoInfo.AppendLine("No matching photo found that was taken 60 seconds earlier or later.");
+                photoInfo.AppendLine("Try searching for other photo IDs from your ride.");
+                
+                SearchManager.SetSearchImageInfo(photoInfo.ToString());
             }
         }
         
@@ -231,7 +259,7 @@ namespace PRA_B4_FOTOKIOSK.controller
             {
                 Text = $"First Photo (ID: {firstPhoto.Id})",
                 FontWeight = FontWeights.Bold,
-                Foreground = new SolidColorBrush(Color.FromRgb(200, 0, 0)),
+                Foreground = new SolidColorBrush(Color.FromRgb(0, 200, 0)),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(0, 0, 0, 10)
             };
@@ -263,7 +291,7 @@ namespace PRA_B4_FOTOKIOSK.controller
             // Red border for the first photo
             var border1 = new Border
             {
-                BorderBrush = new SolidColorBrush(Color.FromRgb(255, 0, 0)), // Red
+                BorderBrush = new SolidColorBrush(Color.FromRgb(0, 255, 0)), // green
                 BorderThickness = new Thickness(6),
                 Margin = new Thickness(8),
                 Child = image1,
@@ -296,13 +324,29 @@ namespace PRA_B4_FOTOKIOSK.controller
             photoPairContainer.Children.Add(border2);
               // Calculate exact time difference for message
             double exactTimeDiff = GetExactTimeDifference(firstPhoto, secondPhoto);
+              // Get day information
+            string dir1 = Path.GetFileName(Path.GetDirectoryName(firstPhoto.Source) ?? "");
+            string dir2 = Path.GetFileName(Path.GetDirectoryName(secondPhoto.Source) ?? "");
+            string day1 = dir1.Contains("_") ? dir1.Split('_')[1] : "";
+            string day2 = dir2.Contains("_") ? dir2.Split('_')[1] : "";
+
+            var infoText = new StringBuilder();
+            infoText.AppendLine("Paired photos found!");
+            infoText.AppendLine();
+            infoText.AppendLine("First Photo (green border):");
+            infoText.AppendLine($"- ID: {firstPhoto.Id}");
+            infoText.AppendLine($"- Time: {hour1:D2}:{minute1:D2}:{second1:D2}");
+            if (!string.IsNullOrEmpty(day1)) infoText.AppendLine($"- Day: {day1}");
+            infoText.AppendLine();
+            infoText.AppendLine("Second Photo (blue border):");
+            infoText.AppendLine($"- ID: {secondPhoto.Id}");
+            infoText.AppendLine($"- Time: {hour2:D2}:{minute2:D2}:{second2:D2}");
+            if (!string.IsNullOrEmpty(day2)) infoText.AppendLine($"- Day: {day2}");
+            infoText.AppendLine();
+            infoText.AppendLine($"These photos were taken exactly {exactTimeDiff:F1} seconds apart by the two cameras along the ride.");
+            infoText.AppendLine("The photos are displayed in chronological order (earliest on the left).");
             
-            SearchManager.SetSearchImageInfo($"Paired photos found!\n\n" +
-                                           $"Photo 1 ID: {firstPhoto.Id} (red border - taken at {hour1:D2}:{minute1:D2}:{second1:D2})\n" +
-                                           $"Photo 2 ID: {secondPhoto.Id} (blue border - taken at {hour2:D2}:{minute2:D2}:{second2:D2})\n\n" +
-                                           $"These photos were taken exactly {exactTimeDiff:F1} seconds apart by the two cameras along the ride.\n" +
-                                           $"The photos are displayed in chronological order (earliest on the left).");
-            
+            SearchManager.SetSearchImageInfo(infoText.ToString());
             SearchManager.SetPictureGrid(photoPairContainer);
         }
 

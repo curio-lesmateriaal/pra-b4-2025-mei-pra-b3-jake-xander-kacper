@@ -18,10 +18,10 @@ namespace PRA_B4_FOTOKIOSK.magie
 
         public static void SetPicture(string path)
         {
-            Instance.imgBig.Source = pathToImage(path);
+            Instance.imgBig.Source = PathToImage(path);
         }
 
-        public static BitmapImage pathToImage(string path)
+        public static BitmapImage PathToImage(string path)
         {
             var stream = new MemoryStream(File.ReadAllBytes(path));
             var img = new System.Windows.Media.Imaging.BitmapImage();
@@ -51,6 +51,25 @@ namespace PRA_B4_FOTOKIOSK.magie
         public static void AddSearchImageInfo(string text)
         {
             SetSearchImageInfo(GetSearchImageInfo() + text);
+        }
+        
+        public static void SetPictureGrid(UIElement gridElement)
+        {
+            // Clear current content
+            if (Instance.imgBig.Parent is Panel panel)
+            {
+                panel.Children.Clear();
+                panel.Children.Add(gridElement);
+            }
+            else
+            {
+                // Replace the image with the grid in its parent container
+                FrameworkElement parent = (FrameworkElement)Instance.imgBig.Parent;
+                if (parent is Border border)
+                {
+                    border.Child = gridElement;
+                }
+            }
         }
     }
 }

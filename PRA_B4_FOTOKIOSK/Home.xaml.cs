@@ -26,30 +26,31 @@ namespace PRA_B4_FOTOKIOSK
 
         public ShopController ShopController { get; set; }
         public PictureController PictureController { get; set; }
-        public SearchController SearchController { get; set; }
-
-        public Home()
+        public SearchController SearchController { get; set; }        public Home()
         {
             // Bouw de UI
             InitializeComponent();
 
+            // Maak de controllers first
+            ShopController = new ShopController();
+            PictureController = new PictureController();
+            SearchController = new SearchController();
+            
             // Stel de manager in
             PictureManager.Instance = this;
             ShopManager.Instance = this;
+            SearchManager.Instance = this;
+            
+            // Then set the Window references
             ShopController.Window = this;
             PictureController.Window = this;
             SearchController.Window = this;
 
-            // Maak de controllers
-            ShopController = new ShopController();
-            PictureController = new PictureController();
-            SearchController = new SearchController();
-
-            // Start de paginas
+            // Start de paginas last
             PictureController.Start();
             ShopController.Start();
             SearchController.Start();
-        }   
+        }
 
         private void btnShopAdd_Click(object sender, RoutedEventArgs e)
         {

@@ -20,11 +20,16 @@ namespace PRA_B4_FOTOKIOSK.controller
         
         // List to keep track of all ordered products
         private List<OrderedProduct> _orderedProducts = new List<OrderedProduct>();
-        public void Start()
+        
+        // List of all available photos
+        private List<KioskPhoto> _allPhotos = new List<KioskPhoto>();        public void Start()
         {
             // Reset the total price and clear ordered products
             _totalPrice = 0;
             _orderedProducts.Clear();
+            
+            // Load all photos for ID validation
+            LoadAllPhotos();
 
             // Initialize products with prices and descriptions
             ShopManager.Products.Clear();
@@ -71,7 +76,57 @@ namespace PRA_B4_FOTOKIOSK.controller
 
             // Initialize receipt with header
             ShopManager.SetShopReceipt("=== THEMEPARK FOTOKIOSK ===\n\n(Voeg producten toe om de bon te zien)");
-        }// Wordt uitgevoerd wanneer er op de Toevoegen knop is geklikt
+
+            // Load all available photos
+            LoadAllPhotos();
+        }
+
+        // Loads all available photos from the photos directory
+        private void LoadAllPhotos()
+        {
+            _allPhotos.Clear();
+            
+            try
+            {
+                string baseDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../fotos"));
+                
+                foreach (string dir in Directory.GetDirectories(baseDir))
+                {
+                    foreach (string file in Directory.GetFiles(dir))
+                    {
+                        string filename = Path.GetFileName(file);
+                        string[] parts = filename.Split('_');
+                        
+                        if (parts.Length >= 4)
+                        {
+                            string idWithExtension = parts[3];
+                            string idString = idWithExtension.Split('.')[0];
+                            
+                            if (idString.StartsWith("id") && int.TryParse(idString.Substring(2), out int photoId))
+                            {
+                                _allPhotos.Add(new KioskPhoto
+                                {
+                                    Id = photoId,
+                                    Source = file
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading photos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // Check if a photo ID exists
+        private bool PhotoExists(int photoId)
+        {
+            return _allPhotos.Any(p => p.Id == photoId);
+        }
+
+        // Wordt uitgevoerd wanneer er op de Toevoegen knop is geklikt
         public void AddButtonClick()
         {
             // Get the selected product
@@ -82,11 +137,25 @@ namespace PRA_B4_FOTOKIOSK.controller
             
             // Get the photo ID
             int? photoId = ShopManager.GetFotoId();
-            
-            // Check if all required fields are filled in
+              // Check if all required fields are filled in
             if (selectedProduct == null || amount == null || photoId == null)
             {
                 MessageBox.Show("Vul alle velden in a.u.b.", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            
+            // Verify that the photo ID exists
+            if (!PhotoExists(photoId.Value))
+            {
+                MessageBox.Show($"Foto met ID {photoId.Value} bestaat niet.\nControleer het ID en probeer opnieuw.", 
+                    "Foto niet gevonden", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Check if the photo ID exists
+            if (!PhotoExists(photoId.Value))
+            {
+                MessageBox.Show("Foto ID bestaat niet. Controleer de ID en probeer opnieuw.", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             
@@ -103,7 +172,9 @@ namespace PRA_B4_FOTOKIOSK.controller
             
             // Regenerate the receipt with all ordered products
             RegenerateReceipt();
-        }        // Regenerates the complete receipt from ordered products
+        }
+
+        // Regenerates the complete receipt from ordered products
         private void RegenerateReceipt()
         {
             // Start with an empty receipt and add a header
@@ -131,14 +202,19 @@ namespace PRA_B4_FOTOKIOSK.controller
             displayReceipt.AppendLine("========================");
             
             // Update the receipt display
-            ShopManager.SetShopReceipt(displayReceipt.ToString());        }        // Wordt uitgevoerd wanneer er op de Resetten knop is geklikt
+            ShopManager.SetShopReceipt(displayReceipt.ToString());
+        }
+
+        // Wordt uitgevoerd wanneer er op de Resetten knop is geklikt
         public void ResetButtonClick()
         {
             // Reset the receipt and total price
             _totalPrice = 0;
             _orderedProducts.Clear();
             ShopManager.SetShopReceipt("=== THEMEPARK FOTOKIOSK ===\n\n(Voeg producten toe om de bon te zien)");
-        }// Wordt uitgevoerd wanneer er op de Save knop is geklikt
+        }
+
+        // Wordt uitgevoerd wanneer er op de Save knop is geklikt
         public void SaveButtonClick()
         {
             try
@@ -160,7 +236,8 @@ namespace PRA_B4_FOTOKIOSK.controller
                 {
                     Directory.CreateDirectory(directory);
                 }
-                  // Create the filename
+                
+                // Create the filename
                 string filename = $"{directory}/receipt_{timestamp}.txt";
                 
                 // Build a receipt with styled header information
@@ -176,7 +253,8 @@ namespace PRA_B4_FOTOKIOSK.controller
                 receiptBuilder.AppendLine("  PRODUCT DETAILS                                  ");
                 receiptBuilder.AppendLine("====================================================");
                 receiptBuilder.AppendLine();
-                  // Add each product with improved formatting
+                
+                // Add each product with improved formatting
                 foreach (OrderedProduct product in _orderedProducts)
                 {
                     receiptBuilder.AppendLine($"  Foto ID: {product.PhotoId}");
@@ -207,7 +285,8 @@ namespace PRA_B4_FOTOKIOSK.controller
                     "Bon opgeslagen", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
-            {                MessageBox.Show($"Fout bij opslaan: {ex.Message}", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+            {
+                MessageBox.Show($"Fout bij opslaan: {ex.Message}", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         
@@ -233,7 +312,8 @@ namespace PRA_B4_FOTOKIOSK.controller
                 
                 // Show the dialog and get result
                 bool? result = saveFileDialog.ShowDialog();
-                  // If user clicked OK, proceed with saving
+                
+                // If user clicked OK, proceed with saving
                 if (result == true)
                 {
                     string fileExtension = System.IO.Path.GetExtension(saveFileDialog.FileName).ToLower();
